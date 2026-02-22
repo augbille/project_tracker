@@ -1,0 +1,217 @@
+.week-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.week-card:hover {
+  border-color: #333;
+}
+
+.week-card--completed {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+}
+
+.week-card--expanded .week-card__body {
+  display: block;
+}
+
+.week-card--expanded .week-card__expand {
+  transform: rotate(0deg);
+}
+
+.week-card__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.week-card__checkbox-wrap {
+  flex-shrink: 0;
+  cursor: pointer;
+  display: block;
+}
+
+.week-card__checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.week-card__check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.week-card__checkbox:checked + .week-card__check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.week-card__checkbox:checked + .week-card__check::after {
+  content: '✓';
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.week-card__checkbox-wrap:hover .week-card__check {
+  border-color: var(--muted);
+}
+
+.week-card__title-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.week-card__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.week-card__badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  background: var(--input-bg);
+  padding: 0.2em 0.5em;
+  border-radius: 4px;
+}
+
+.week-card--completed .week-card__title {
+  color: var(--muted);
+}
+
+.week-card__expand {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--muted);
+  background: var(--input-bg);
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.week-card__header:hover .week-card__expand {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.week-card__body {
+  display: none;
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.week-card__section {
+  margin-top: 1rem;
+}
+
+.week-card__section:first-child {
+  margin-top: 1rem;
+}
+
+.week-card__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.week-card__notes {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  resize: vertical;
+  min-height: 72px;
+  transition: border-color 0.2s;
+}
+
+.week-card__notes::placeholder {
+  color: var(--muted);
+}
+
+.week-card__notes:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.week-card__materials {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.week-card__material-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.week-card__material-input::placeholder {
+  color: var(--muted);
+}
+
+.week-card__material-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.week-card__material {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.week-card__material-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.week-card__material-link {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.week-card__material-link:hover {
+  text-decoration: underline;
+}
