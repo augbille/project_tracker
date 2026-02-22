@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useAuth } from './contexts/AuthContext'
 import { useProgress } from './hooks/useProgress'
 import WeekCard from './WeekCard'
@@ -11,6 +11,17 @@ import './App.css'
 export default function App() {
   const { user, profile, loading: authLoading } = useAuth()
   const { weeks, updateWeek, loading: progressLoading, TOTAL_WEEKS } = useProgress(user)
+  const [signOutLoading, setSignOutLoading] = useState(false)
+
+  const handleSignOut = useCallback(async () => {
+    if (!supabase || signOutLoading) return
+    setSignOutLoading(true)
+    try {
+      await supabase.auth.signOut()
+    } finally {
+      setSignOutLoading(false)
+    }
+  }, [signOutLoading])
 
   const completedCount = weeks.filter((w) => w.completed).length
   const progress = Math.round((completedCount / TOTAL_WEEKS) * 100)
@@ -27,10 +38,6 @@ export default function App() {
     return <Auth />
   }
 
-  async function handleSignOut() {
-    if (supabase) await supabase.auth.signOut()
-  }
-
   return (
     <div className="app">
       <header className="header">
@@ -43,8 +50,14 @@ export default function App() {
             {user && (
             <div className="header-user">
               <span className="header-user-name">{profile?.display_name || user.email}</span>
-              <button type="button" className="header-logout" onClick={handleSignOut}>
-                Sign out
+              <button
+                type="button"
+                className="header-logout"
+                onClick={handleSignOut}
+                disabled={signOutLoading}
+                aria-busy={signOutLoading}
+              >
+                {signOutLoading ? 'Signing out…' : 'Sign out'}
               </button>
             </div>
           )}

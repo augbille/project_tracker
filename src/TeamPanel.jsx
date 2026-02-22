@@ -24,65 +24,65 @@ export default function TeamPanel() {
   const [joinLoading, setJoinLoading] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
-  useEffect(() => {
+  async function loadTeamsAndTeammates() {
     if (!user || !supabase) return
+    const { data: memberships } = await supabase
+      .from('team_members')
+      .select('team_id, teams(id, name, invite_code)')
+      .eq('user_id', user.id)
 
-    async function load() {
-      const { data: memberships } = await supabase
-        .from('team_members')
-        .select('team_id, teams(id, name, invite_code)')
-        .eq('user_id', user.id)
+    const teamList = (memberships || [])
+      .map((m) => m.teams)
+      .filter(Boolean)
+      .reduce((acc, t) => (t && !acc.find((x) => x.id === t.id) ? [...acc, t] : acc), [])
 
-      const teamList = (memberships || [])
-        .map((m) => m.teams)
-        .filter(Boolean)
-        .reduce((acc, t) => (t && !acc.find((x) => x.id === t.id) ? [...acc, t] : acc), [])
+    setTeams(teamList)
 
-      setTeams(teamList)
-
-      if (teamList.length === 0) {
-        setTeammates([])
-        return
-      }
-
-      const teamIds = teamList.map((t) => t.id)
-      const { data: allMembers } = await supabase
-        .from('team_members')
-        .select('user_id')
-        .in('team_id', teamIds)
-
-      const userIds = [...new Set((allMembers || []).map((m) => m.user_id).filter((id) => id !== user.id))]
-      if (userIds.length === 0) {
-        setTeammates([])
-        return
-      }
-
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, display_name')
-        .in('id', userIds)
-
-      const { data: progressRows } = await supabase
-        .from('user_progress')
-        .select('user_id, progress')
-        .in('user_id', userIds)
-
-      const progressMap = {}
-      (progressRows || []).forEach((r) => {
-        const completed = Array.isArray(r.progress) ? r.progress.filter((w) => w.completed).length : 0
-        progressMap[r.user_id] = completed
-      })
-
-      setTeammates(
-        (profiles || []).map((p) => ({
-          id: p.id,
-          display_name: p.display_name || 'Teammate',
-          completedCount: progressMap[p.id] ?? 0,
-        }))
-      )
+    if (teamList.length === 0) {
+      setTeammates([])
+      return
     }
 
-    load()
+    const teamIds = teamList.map((t) => t.id)
+    const { data: allMembers } = await supabase
+      .from('team_members')
+      .select('user_id')
+      .in('team_id', teamIds)
+
+    const userIds = [...new Set((allMembers || []).map((m) => m.user_id).filter((id) => id !== user.id))]
+    if (userIds.length === 0) {
+      setTeammates([])
+      return
+    }
+
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in('id', userIds)
+
+    const { data: progressRows } = await supabase
+      .from('user_progress')
+      .select('user_id, progress')
+      .in('user_id', userIds)
+
+    const progressMap = {}
+    (progressRows || []).forEach((r) => {
+      const completed = Array.isArray(r.progress) ? r.progress.filter((w) => w.completed).length : 0
+      progressMap[r.user_id] = completed
+    })
+
+    setTeammates(
+      (profiles || []).map((p) => ({
+        id: p.id,
+        display_name: p.display_name || 'Teammate',
+        completedCount: progressMap[p.id] ?? 0,
+      }))
+    )
+  }
+
+  useEffect(() => {
+    if (!user || !supabase) return
+    loadTeamsAndTeammates()
   }, [user?.id, supabase])
 
   async function handleCreateTeam(e) {
@@ -110,11 +110,11 @@ export default function TeamPanel() {
       setCreateLoading(false)
       return
     }
-    setTeams((prev) => [...prev, { id: team.id, name: createName.trim(), invite_code: code }])
     setCreateName('')
     setCreateMessage({ type: 'success', text: 'Team created. Share the invite code with teammates.' })
     setCreateLoading(false)
     setExpanded(true)
+    loadTeamsAndTeammates()
   }
 
   async function handleJoinTeam(e) {
@@ -132,14 +132,7 @@ export default function TeamPanel() {
     setJoinMessage({ type: 'success', text: "You've joined the team." })
     setInviteCode('')
     setJoinLoading(false)
-    if (data) {
-      const { data: team } = await supabase
-        .from('teams')
-        .select('id, name, invite_code')
-        .eq('id', data)
-        .single()
-      if (team) setTeams((prev) => (prev.some((t) => t.id === team.id) ? prev : [...prev, team]))
-    }
+    if (data) loadTeamsAndTeammates()
   }
 
   return (

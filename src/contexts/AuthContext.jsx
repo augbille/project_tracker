@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
@@ -7,6 +7,14 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const mountRef = useRef(true)
+
+  useEffect(() => {
+    mountRef.current = true
+    return () => {
+      mountRef.current = false
+    }
+  }, [])
 
   useEffect(() => {
     if (!supabase) {
@@ -18,30 +26,38 @@ export function AuthProvider({ children }) {
     const timeout = setTimeout(() => {
       if (cancelled) return
       setLoading(false)
-    }, 8000)
+    }, 4000)
 
     supabase.auth
       .getSession()
       .then(({ data: { session } }) => {
         if (cancelled) return
         setUser(session?.user ?? null)
-        if (session?.user) fetchProfile(session.user.id)
+        setLoading(false)
+        clearTimeout(timeout)
+        if (session?.user) {
+          fetchProfile(session.user.id).catch(() => {})
+        }
       })
       .catch(() => {
-        if (!cancelled) setUser(null)
-      })
-      .finally(() => {
         if (!cancelled) {
-          clearTimeout(timeout)
+          setUser(null)
           setLoading(false)
+          clearTimeout(timeout)
         }
       })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mountRef.current) return
         setUser(session?.user ?? null)
-        if (session?.user) await fetchProfile(session.user.id)
-        else setProfile(null)
+        if (session?.user) {
+          const uid = session.user.id
+          const p = await fetchProfileData(uid)
+          if (mountRef.current) setProfile(p)
+        } else {
+          setProfile(null)
+        }
       }
     )
 
@@ -52,8 +68,8 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  async function fetchProfile(userId) {
-    if (!supabase) return
+  async function fetchProfileData(userId) {
+    if (!supabase) return null
     let { data } = await supabase
       .from('profiles')
       .select('display_name')
@@ -70,7 +86,13 @@ export function AuthProvider({ children }) {
         data = res.data
       }
     }
-    setProfile(data)
+    return data ?? null
+  }
+
+  function fetchProfile(userId) {
+    fetchProfileData(userId).then((p) => {
+      if (mountRef.current) setProfile(p)
+    }).catch(() => {})
   }
 
   const value = {

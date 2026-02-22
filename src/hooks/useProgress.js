@@ -57,7 +57,7 @@ export function useProgress(user) {
         setWeeks(loadFromStorage())
         setLoading(false)
       }
-    }, 6000)
+    }, 4000)
 
     supabase
       .from('user_progress')
@@ -105,6 +105,7 @@ export function useProgress(user) {
             { onConflict: 'user_id' }
           )
           .then(() => {})
+          .catch(() => {})
       } else {
         saveToStorage(next)
       }
