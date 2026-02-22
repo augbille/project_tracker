@@ -54,11 +54,22 @@ export function AuthProvider({ children }) {
 
   async function fetchProfile(userId) {
     if (!supabase) return
-    const { data } = await supabase
+    let { data } = await supabase
       .from('profiles')
       .select('display_name')
       .eq('id', userId)
       .single()
+    if (!data) {
+      const { error } = await supabase.rpc('ensure_my_profile')
+      if (!error) {
+        const res = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', userId)
+          .single()
+        data = res.data
+      }
+    }
     setProfile(data)
   }
 
