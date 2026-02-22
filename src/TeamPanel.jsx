@@ -19,6 +19,7 @@ export default function TeamPanel() {
   const [inviteCode, setInviteCode] = useState('')
   const [joinMessage, setJoinMessage] = useState({ type: '', text: '' })
   const [createName, setCreateName] = useState('')
+  const [createMessage, setCreateMessage] = useState({ type: '', text: '' })
   const [createLoading, setCreateLoading] = useState(false)
   const [joinLoading, setJoinLoading] = useState(false)
   const [expanded, setExpanded] = useState(false)
@@ -88,6 +89,7 @@ export default function TeamPanel() {
     e.preventDefault()
     if (!createName.trim() || !supabase || !user) return
     setCreateLoading(true)
+    setCreateMessage({ type: '', text: '' })
     const code = generateInviteCode()
     const { data: team, error: teamErr } = await supabase
       .from('teams')
@@ -96,12 +98,21 @@ export default function TeamPanel() {
       .single()
 
     if (teamErr) {
+      setCreateMessage({ type: 'error', text: teamErr.message || 'Could not create team' })
       setCreateLoading(false)
       return
     }
-    await supabase.from('team_members').insert([{ team_id: team.id, user_id: user.id }])
+    const { error: memberErr } = await supabase
+      .from('team_members')
+      .insert([{ team_id: team.id, user_id: user.id }])
+    if (memberErr) {
+      setCreateMessage({ type: 'error', text: memberErr.message || 'Could not add you to the team' })
+      setCreateLoading(false)
+      return
+    }
     setTeams((prev) => [...prev, { id: team.id, name: createName.trim(), invite_code: code }])
     setCreateName('')
+    setCreateMessage({ type: 'success', text: 'Team created. Share the invite code with teammates.' })
     setCreateLoading(false)
     setExpanded(true)
   }
@@ -160,6 +171,11 @@ export default function TeamPanel() {
                 {createLoading ? 'Creating…' : 'Create'}
               </button>
             </form>
+            {createMessage.text && (
+              <p className={`team-panel__message team-panel__message--${createMessage.type}`}>
+                {createMessage.text}
+              </p>
+            )}
           </div>
 
           <div className="team-panel__section">

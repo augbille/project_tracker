@@ -14,11 +14,28 @@ export function AuthProvider({ children }) {
       return
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) fetchProfile(session.user.id)
+    let cancelled = false
+    const timeout = setTimeout(() => {
+      if (cancelled) return
       setLoading(false)
-    })
+    }, 8000)
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (cancelled) return
+        setUser(session?.user ?? null)
+        if (session?.user) fetchProfile(session.user.id)
+      })
+      .catch(() => {
+        if (!cancelled) setUser(null)
+      })
+      .finally(() => {
+        if (!cancelled) {
+          clearTimeout(timeout)
+          setLoading(false)
+        }
+      })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -28,7 +45,11 @@ export function AuthProvider({ children }) {
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      cancelled = true
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
   async function fetchProfile(userId) {

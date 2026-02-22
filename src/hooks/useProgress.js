@@ -52,6 +52,13 @@ export function useProgress(user) {
 
     let cancelled = false
     setLoading(true)
+    const timeout = setTimeout(() => {
+      if (!cancelled) {
+        setWeeks(loadFromStorage())
+        setLoading(false)
+      }
+    }, 6000)
+
     supabase
       .from('user_progress')
       .select('progress')
@@ -62,19 +69,29 @@ export function useProgress(user) {
         if (error || !data?.progress?.length) {
           const local = loadFromStorage()
           setWeeks(local)
-          // Upsert so next time we have a row
           supabase.from('user_progress').upsert(
             { user_id: user.id, progress: local, updated_at: new Date().toISOString() },
             { onConflict: 'user_id' }
-          )
+          ).then(() => {})
         } else {
           const p = data.progress
           setWeeks(p.length === TOTAL_WEEKS ? p : defaultWeeks)
         }
-        setLoading(false)
+      })
+      .catch(() => {
+        if (!cancelled) setWeeks(loadFromStorage())
+      })
+      .finally(() => {
+        if (!cancelled) {
+          clearTimeout(timeout)
+          setLoading(false)
+        }
       })
 
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      clearTimeout(timeout)
+    }
   }, [user?.id])
 
   const updateWeek = useCallback((id, updates) => {

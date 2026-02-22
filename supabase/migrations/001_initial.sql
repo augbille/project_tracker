@@ -93,7 +93,7 @@ create policy "Users can read teammates progress"
     )
   );
 
--- Teams: members can read their teams
+-- Teams: members can read their teams; creator can read team they just created (for .insert().select())
 create policy "Members can read team"
   on public.teams for select
   using (
@@ -102,6 +102,10 @@ create policy "Members can read team"
       where team_id = teams.id and user_id = auth.uid()
     )
   );
+
+create policy "Creator can read own team"
+  on public.teams for select
+  using (created_by = auth.uid());
 
 create policy "Anyone can create team"
   on public.teams for insert
