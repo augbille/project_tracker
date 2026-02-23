@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useRef } from 'react'
+import { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
@@ -95,12 +95,21 @@ export function AuthProvider({ children }) {
     }).catch(() => {})
   }
 
+  const signOut = useCallback(async () => {
+    setUser(null)
+    setProfile(null)
+    if (supabase) {
+      await supabase.auth.signOut({ scope: 'local' })
+    }
+  }, [])
+
   const value = {
     user,
     profile,
     loading,
     isAuthenticated: !!user,
     supabase,
+    signOut,
   }
 
   return (

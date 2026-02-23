@@ -1,0 +1,136 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 1000;
+}
+
+.modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal__title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modal__close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.modal__close:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.modal__form {
+  padding: 1.5rem;
+}
+
+.modal__label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.modal__input,
+.modal__textarea,
+.modal__select {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.modal__textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal__input:focus,
+.modal__textarea:focus,
+.modal__select:focus {
+  border-color: var(--orange);
+  outline: none;
+}
+
+.modal__error {
+  color: var(--error);
+  font-size: 0.9rem;
+  margin: -0.5rem 0 1rem;
+}
+
+.modal__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.modal__btn {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: none;
+}
+
+.modal__btn--secondary {
+  background: var(--surface-elevated);
+  color: var(--text-secondary);
+}
+
+.modal__btn--secondary:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.modal__btn--primary {
+  background: var(--orange);
+  color: white;
+}
+
+.modal__btn--primary:hover:not(:disabled) {
+  background: var(--orange-dim);
+}
+
+.modal__btn--primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

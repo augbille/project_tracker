@@ -3,7 +3,7 @@ import { supabase } from './lib/supabase'
 import './Auth.css'
 
 export default function Auth() {
-  const [mode, setMode] = useState('signin') // 'signin' | 'signup'
+  const [mode, setMode] = useState('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -40,34 +40,37 @@ export default function Auth() {
 
   return (
     <div className="auth">
-      <div className="auth-card">
-        <h1 className="auth-title">AI 10 Workshop</h1>
-        <p className="auth-subtitle">Sign in or create an account to track and share progress with your team.</p>
+      <div className="auth__card">
+        <div className="auth__brand">
+          <span className="auth__logo">◆</span>
+          <h1 className="auth__title">Project Share</h1>
+          <p className="auth__subtitle">Sign in or create an account to share projects with your team.</p>
+        </div>
 
-        <div className="auth-tabs">
+        <div className="auth__tabs">
           <button
             type="button"
-            className={`auth-tab ${mode === 'signin' ? 'auth-tab--active' : ''}`}
+            className={`auth__tab ${mode === 'signin' ? 'auth__tab--active' : ''}`}
             onClick={() => setMode('signin')}
           >
             Sign in
           </button>
           <button
             type="button"
-            className={`auth-tab ${mode === 'signup' ? 'auth-tab--active' : ''}`}
+            className={`auth__tab ${mode === 'signup' ? 'auth__tab--active' : ''}`}
             onClick={() => setMode('signup')}
           >
             Sign up
           </button>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="auth__form" onSubmit={handleSubmit}>
           {mode === 'signup' && (
-            <label className="auth-label">
+            <label className="auth__label">
               Display name
               <input
                 type="text"
-                className="auth-input"
+                className="auth__input"
                 placeholder="How teammates see you"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
@@ -75,11 +78,11 @@ export default function Auth() {
               />
             </label>
           )}
-          <label className="auth-label">
+          <label className="auth__label">
             Email
             <input
               type="email"
-              className="auth-input"
+              className="auth__input"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -87,11 +90,11 @@ export default function Auth() {
               autoComplete="email"
             />
           </label>
-          <label className="auth-label">
+          <label className="auth__label">
             Password
             <input
               type="password"
-              className="auth-input"
+              className="auth__input"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -101,9 +104,9 @@ export default function Auth() {
             />
           </label>
           {message.text && (
-            <p className={`auth-message auth-message--${message.type}`}>{message.text}</p>
+            <p className={`auth__message auth__message--${message.type}`}>{message.text}</p>
           )}
-          <button type="submit" className="auth-submit" disabled={loading}>
+          <button type="submit" className="auth__submit" disabled={loading}>
             {loading ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Sign in'}
           </button>
         </form>
